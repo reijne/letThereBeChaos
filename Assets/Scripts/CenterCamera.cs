@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CenterCamera : MonoBehaviour
-{
+public class CenterCamera : MonoBehaviour {
   [SerializeField] Board board;
-  Vector3 offset = new Vector3(0,0,-10);
+  [SerializeField] int zoffset = -10;
   Bounds tileBounds = new Bounds();
   private void Update() {
     updateBounds();
@@ -14,7 +13,7 @@ public class CenterCamera : MonoBehaviour
   void updateBounds() {
     Bounds newTileBounds = new Bounds();
 
-    foreach(Tile tile in board.tiles) {
+    foreach (Tile tile in board.tiles) {
       newTileBounds.Encapsulate(tile.transform.position);
     }
 
@@ -26,6 +25,6 @@ public class CenterCamera : MonoBehaviour
 
   void centerCamera() {
     Debug.Log("centering");
-    transform.position = tileBounds.center + offset;
+    transform.position = new Vector3(tileBounds.center.x, tileBounds.center.y, zoffset);
   }
 }
