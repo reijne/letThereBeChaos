@@ -5,8 +5,9 @@ using UnityEngine;
 public class Tile : MonoBehaviour {
   public static int SIZE;
   [SerializeField] SpriteRenderer spriteRenderer;
-
-  protected void setColor(Color color) {
+  public Color color;
+  public virtual void setColor(Color color) {
     spriteRenderer.color = color;
+    this.color = color;
   }
 }

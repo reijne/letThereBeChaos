@@ -6,7 +6,7 @@ public class SelectTile : Tile {
   public int x;
   public int y;
   public bool selected = false;
-  public Color color;
+  public Color chosenColor = Color.white;
   private void Start() {
     setColor(Color.gray);
   }
@@ -15,9 +15,13 @@ public class SelectTile : Tile {
     toggle();
   }
 
+  public void choseColor(Color color) {
+    chosenColor = color;
+  }
+
   public void toggle() {
     selected = !selected;
-    if (selected) setColor(Color.white);
+    if (selected) setColor(chosenColor);
     else setColor(Color.gray);
   }
 }

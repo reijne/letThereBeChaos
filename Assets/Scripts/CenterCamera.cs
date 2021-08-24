@@ -24,7 +24,6 @@ public class CenterCamera : MonoBehaviour {
   }
 
   void centerCamera() {
-    Debug.Log("centering");
     transform.position = new Vector3(tileBounds.center.x, tileBounds.center.y, zoffset);
   }
 }

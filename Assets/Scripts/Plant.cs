@@ -3,28 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Plant : Tile {
-  public int gSize;
-  public Color color;
-
-  private void Start() {
-    setColor(color);
-  }
-  // -1,-1 : true
-  // -1, 9 : false
-  public Dictionary<(int, int), bool> growthPattern = new Dictionary<(int, int), bool>() {
-    {(-1, -1), true},
-    {(-1,  0), true},
-    {(-1,  1), true},
-    {( 0, -1), true},
-    {( 0,  0), true},
-    {( 0,  1), true},
-    {( 1, -1), true},
-    {( 1,  0), true},
-    {( 1,  1), true},
-  };
+  public int x;
+  public int y;
 
   private void OnMouseDown() {
+    Debug.Log(String.Format("Setting color to {0}", color));
     Controls.selectedColor = color;
-    Controls.show();
+    Controls.show = true;
+    Controls.offset = new Vector2Int(x - (Pattern.SIZE - 1) / 2, y - (Pattern.SIZE - 1) / 2);
   }
 }

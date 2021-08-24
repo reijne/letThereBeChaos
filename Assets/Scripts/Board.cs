@@ -11,22 +11,22 @@ public class Board : MonoBehaviour {
   [SerializeField] GameObject plant_prefab;
   [SerializeField] Controls controls;
   [SerializeField] int globalCycleTime;
-  List<Vector2> plantInitPositions;
+  List<(Vector2, Color)> plantInitPositions;
   public static bool showControls = false;
   public List<Tile> tiles = new List<Tile>();
   Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
   float nextTick;
 
   void Start() {
-    plantInitPositions = new List<Vector2>() {
-      new Vector2(3,3),
-      new Vector2(1,1)
+    plantInitPositions = new List<(Vector2, Color)>() {
+      (new Vector2(3,3), Color.blue),
+      (new Vector2(1,1), Color.blue)
     };
     nextTick = Time.time + 1 / frequency;
     Tile.SIZE = 1;
-    Pattern.SIZE = 1;
-    // spawnPlants();
+    Pattern.SIZE = 3;
     spawnTiles();
+    spawnPlants();
   }
 
   void spawnTiles() {
@@ -38,17 +38,20 @@ public class Board : MonoBehaviour {
   }
 
   void spawnPlants() {
-    foreach (Vector2 plantPos in plantInitPositions) {
-      spawnPlant(plantPos);
+    foreach ((Vector2, Color) tuplant in plantInitPositions) {
+      spawnPlant(tuplant.Item1, tuplant.Item2);
     }
   }
 
-  void spawnPlant(Vector2 plantPos) {
+  void spawnPlant(Vector2 plantPos, Color color) {
     if (outOfBounds(plantPos)) return;
     Vector3 spawnPoint = new Vector3(plantPos.x * Plant.SIZE, plantPos.y * Plant.SIZE, 0);
     GameObject plantObject = Instantiate(plant_prefab, spawnPoint, Quaternion.identity);
     Plant plant = plantObject.GetComponent<Plant>();
     plants[plantPos] = plant;
+    plant.x = (int)plantPos.x;
+    plant.y = (int)plantPos.y;
+    plant.setColor(color);
   }
 
   bool outOfBounds(Vector2 pos) {
@@ -82,13 +85,12 @@ public class Board : MonoBehaviour {
   }
 
   void checkGrowth(Vector2 pos, Plant plant) {
-    for (int rely = -plant.gSize; rely <= plant.gSize; rely++) {
-      for (int relx = -plant.gSize; relx <= plant.gSize; relx++) {
-        if (plant.growthPattern[(relx, rely)]) {
-          growMerge(pos + new Vector2(relx, rely), plant);
-        }
-      }
-    }
+    // for (int rely = -plant.gSize; rely <= plant.gSize; rely++) {
+    //   for (int relx = -plant.gSize; relx <= plant.gSize; relx++) {
+    // if (plant.growthPattern[(relx, rely)]) {
+    //   growMerge(pos + new Vector2(relx, rely), plant);
+    // }
+    // }
   }
 
   void growMerge(Vector2 pos, Plant plant) {
@@ -100,7 +102,7 @@ public class Board : MonoBehaviour {
       // existing.age = 0;
       // existing.age = Mathf.Max(existing.age, plant.age);
     } else {
-      spawnPlant(pos);
+      spawnPlant(pos, plant.color);
     }
   }
 }
