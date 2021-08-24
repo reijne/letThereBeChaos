@@ -10,9 +10,7 @@ public class Board : MonoBehaviour {
   [SerializeField] GameObject tile_prefab;
   [SerializeField] GameObject plant_prefab;
   [SerializeField] Controls controls;
-  [SerializeField] int globalCycleTime;
   List<(Vector2, Color)> plantInitPositions;
-  public static bool showControls = false;
   public List<Tile> tiles = new List<Tile>();
   Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
   float nextTick;
@@ -20,10 +18,11 @@ public class Board : MonoBehaviour {
   void Start() {
     plantInitPositions = new List<(Vector2, Color)>() {
       (new Vector2(6,7), Color.blue),
-      (new Vector2(1,1), Color.red)
+      (new Vector2(1,1), Color.cyan),
+      (new Vector2(9,6), Color.magenta),
     };
     nextTick = Time.time + 1 / frequency;
-    Tile.SIZE = 1;
+    Tile.SIZE = 0.5;
     Pattern.SIZE = 3;
     spawnTiles();
     spawnPlants();
@@ -88,7 +87,6 @@ public class Board : MonoBehaviour {
     if (!controls.patterns.ContainsKey(plant.color)) return;
     Pattern pattern = controls.patterns[plant.color];
     foreach (KeyValuePair<(int, int), bool> select in pattern.selectedTiles) {
-      Debug.Log(String.Format("spawning relative :: ({0},{1})", select.Key.Item1, select.Key.Item2));
       Vector2 offset = new Vector2(select.Key.Item1 - (Pattern.SIZE - 1) / 2, select.Key.Item2 - (Pattern.SIZE - 1) / 2);
       if (select.Value) grow(pos + offset, plant);
     }
