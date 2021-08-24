@@ -19,8 +19,8 @@ public class Board : MonoBehaviour {
 
   void Start() {
     plantInitPositions = new List<(Vector2, Color)>() {
-      (new Vector2(3,3), Color.blue),
-      (new Vector2(1,1), Color.blue)
+      (new Vector2(6,7), Color.blue),
+      (new Vector2(1,1), Color.red)
     };
     nextTick = Time.time + 1 / frequency;
     Tile.SIZE = 1;
@@ -85,24 +85,17 @@ public class Board : MonoBehaviour {
   }
 
   void checkGrowth(Vector2 pos, Plant plant) {
-    // for (int rely = -plant.gSize; rely <= plant.gSize; rely++) {
-    //   for (int relx = -plant.gSize; relx <= plant.gSize; relx++) {
-    // if (plant.growthPattern[(relx, rely)]) {
-    //   growMerge(pos + new Vector2(relx, rely), plant);
-    // }
-    // }
+    if (!controls.patterns.ContainsKey(plant.color)) return;
+    Pattern pattern = controls.patterns[plant.color];
+    foreach (KeyValuePair<(int, int), bool> select in pattern.selectedTiles) {
+      Debug.Log(String.Format("spawning relative :: ({0},{1})", select.Key.Item1, select.Key.Item2));
+      Vector2 offset = new Vector2(select.Key.Item1 - (Pattern.SIZE - 1) / 2, select.Key.Item2 - (Pattern.SIZE - 1) / 2);
+      if (select.Value) grow(pos + offset, plant);
+    }
   }
 
-  void growMerge(Vector2 pos, Plant plant) {
-    if (plants.ContainsKey(pos)) {
-      // Existing plant must merge
-      // Plant existing = plants[pos];
-      // if (existing == null) return;
-      // existing.age = plant.age;
-      // existing.age = 0;
-      // existing.age = Mathf.Max(existing.age, plant.age);
-    } else {
-      spawnPlant(pos, plant.color);
-    }
+  void grow(Vector2 pos, Plant plant) {
+    if (plants.ContainsKey(pos)) return;
+    spawnPlant(pos, plant.color);
   }
 }

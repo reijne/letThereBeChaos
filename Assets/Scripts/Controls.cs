@@ -9,13 +9,12 @@ public class Controls : MonoBehaviour {
   public static Color selectedColor;
   public static Vector2Int offset = Vector2Int.zero;
   public static bool show = false;
-  Dictionary<Color, Pattern> patterns = new Dictionary<Color, Pattern>();
+  public Dictionary<Color, Pattern> patterns = new Dictionary<Color, Pattern>();
   List<GameObject> selectTileObjects = new List<GameObject>();
 
   private void Update() {
-    if (show) {
+    if (show && !controlObject.activeSelf) {
       showControls();
-      show = false;
     }
   }
 
@@ -27,6 +26,7 @@ public class Controls : MonoBehaviour {
   public void hideControls() {
     clearSelectTiles();
     controlObject.SetActive(false);
+    show = false;
   }
 
   void spawnSelectTiles() {
@@ -49,18 +49,17 @@ public class Controls : MonoBehaviour {
 
   void showPattern(Pattern pattern) {
     foreach (KeyValuePair<(int, int), bool> tileInfo in pattern.selectedTiles) {
-      spawnSelectTile(tileInfo.Key.Item1, tileInfo.Key.Item2, pattern.selectedTiles[tileInfo.Key]);
+      spawnSelectTile(tileInfo.Key.Item1 + offset.x, tileInfo.Key.Item2 + offset.y, tileInfo.Value);
     }
   }
 
   public void savePattern() {
     patterns[selectedColor] = new Pattern();
     foreach (GameObject tile in selectTileObjects) {
-      Debug.Log("Adding a tile");
       SelectTile selectTile = tile.GetComponent<SelectTile>();
-      patterns[selectedColor].selectedTiles[(selectTile.x, selectTile.y)] = selectTile.selected;
+      patterns[selectedColor].selectedTiles[(selectTile.x - offset.x, selectTile.y - offset.y)] = selectTile.selected;
     }
-    Debug.Log(patterns[selectedColor].stringer());
+    // Debug.Log(patterns[selectedColor].toString());
     hideControls();
   }
 
@@ -70,10 +69,11 @@ public class Controls : MonoBehaviour {
     GameObject tileObject = Instantiate(selectTile_prefab, spawnPoint, Quaternion.identity);
     tileObject.transform.SetParent(transform);
     SelectTile sTile = tileObject.GetComponent<SelectTile>();
-    sTile.choseColor(new Color(selectedColor.r, selectedColor.g, selectedColor.b, 0.5f));
+    sTile.choseColor(new Color(selectedColor.r / 2, selectedColor.g / 2, selectedColor.b / 2));
     sTile.x = x;
     sTile.y = y;
-    if (selected) sTile.toggle();
+    if (selected) sTile.select();
+    else sTile.setColor(SelectTile.normalColor);
     selectTileObjects.Add(tileObject);
   }
 

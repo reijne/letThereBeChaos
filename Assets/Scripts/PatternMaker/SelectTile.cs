@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SelectTile : Tile {
+  public static Color normalColor = Color.gray;
   public int x;
   public int y;
   public bool selected = false;
   public Color chosenColor = Color.white;
-  private void Start() {
-    setColor(Color.gray);
-  }
 
   private void OnMouseDown() {
     toggle();
@@ -22,6 +20,11 @@ public class SelectTile : Tile {
   public void toggle() {
     selected = !selected;
     if (selected) setColor(chosenColor);
-    else setColor(Color.gray);
+    else setColor(normalColor);
+  }
+
+  public void select() {
+    selected = true;
+    setColor(chosenColor);
   }
 }

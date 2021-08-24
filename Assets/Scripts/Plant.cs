@@ -7,9 +7,11 @@ public class Plant : Tile {
   public int y;
 
   private void OnMouseDown() {
+    if (Controls.show) return;
     Debug.Log(String.Format("Setting color to {0}", color));
     Controls.selectedColor = color;
-    Controls.show = true;
     Controls.offset = new Vector2Int(x - (Pattern.SIZE - 1) / 2, y - (Pattern.SIZE - 1) / 2);
+    Debug.Log(String.Format("Updating offset to :: {0}", Controls.offset));
+    Controls.show = true;
   }
 }
