@@ -11,24 +11,23 @@ public class Board : MonoBehaviour {
   [SerializeField] GameObject plant_prefab;
   [SerializeField] Controls controls;
   [SerializeField] Interfaze interfaze;
-  List<(Vector2, Color)> plantInitPositions;
+  List<(Vector2, int)> plantInitPositions;
   public List<Tile> tiles = new List<Tile>();
   Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
   float nextTick;
   bool started = false;
 
   void Start() {
-    plantInitPositions = new List<(Vector2, Color)>() {
-      (new Vector2(6,7), Color.blue),
-      (new Vector2(1,1), Color.cyan),
-      (new Vector2(34,22), Color.magenta),
-      (new Vector2(9,6), Color.red),
-      (new Vector2(29,49), Color.green),
+    plantInitPositions = new List<(Vector2, int)>() {
+      (new Vector2(6,7), 1),
+      (new Vector2(1,1), 2),
+      (new Vector2(34,22), 3),
+      (new Vector2(9,6), 4),
+      (new Vector2(29,49), 0),
     };
     nextTick = Time.time + 1 / frequency;
-    // Tile.SIZE = Screen.height / height;
     Tile.SIZE = 1;
-    Pattern.SIZE = 5;
+    Pattern.SIZE = 3;
     spawnTiles();
     spawnPlants();
   }
@@ -46,19 +45,19 @@ public class Board : MonoBehaviour {
   }
 
   void spawnPlants() {
-    foreach ((Vector2, Color) tuplant in plantInitPositions) {
-      spawnPlant(tuplant.Item1, tuplant.Item2);
+    foreach ((Vector2, int) tuplant in plantInitPositions) {
+      spawnPlant(tuplant.Item1, Pattern.pallete[tuplant.Item2]);
     }
   }
 
-  void spawnPlant(Vector2 plantPos, Color color) {
+  public void spawnPlant(Vector2 plantPos, Color color) {
     if (outOfBounds(plantPos)) return;
     Vector3 spawnPoint = new Vector3(plantPos.x * Plant.SIZE, plantPos.y * Plant.SIZE, 0);
     GameObject plantObject = Instantiate(plant_prefab, spawnPoint, Quaternion.identity);
     Plant plant = plantObject.GetComponent<Plant>();
     plants[plantPos] = plant;
-    plant.x = (int)plantPos.x;
-    plant.y = (int)plantPos.y;
+    plant.board = this;
+    plant.pos = plantPos;
     plant.setColor(color);
     interfaze.addColorCount(color);
   }
@@ -72,6 +71,8 @@ public class Board : MonoBehaviour {
     GameObject tileObject = Instantiate(tile_prefab, spawnPoint, Quaternion.identity);
     tileObject.transform.SetParent(transform);
     Tile tile = tileObject.GetComponent<Tile>();
+    tile.board = this;
+    tile.pos = new Vector2(x, y);
     tiles.Add(tile);
   }
 
@@ -94,12 +95,15 @@ public class Board : MonoBehaviour {
   }
 
   void checkGrowth(Vector2 pos, Plant plant) {
-    if (!controls.patterns.ContainsKey(plant.color)) return;
-    Pattern pattern = controls.patterns[plant.color];
-    foreach (KeyValuePair<(int, int), bool> select in pattern.selectedTiles) {
-      Vector2 offset = new Vector2(select.Key.Item1 - (Pattern.SIZE - 1) / 2, select.Key.Item2 - (Pattern.SIZE - 1) / 2);
-      if (select.Value) grow(pos + offset, plant);
+    foreach (Vector2 relPos in Controls.patterns[plant.color]) {
+      grow(pos + relPos, plant);
     }
+    // if (!controls.patterns.ContainsKey(plant.color)) return;
+    // Dictionary<(int, int), bool> pattern = controls.patterns[plant.color];
+    // foreach (KeyValuePair<(int, int), bool> select in pattern) {
+    //   Vector2 offset = new Vector2(select.Key.Item1 - (Pattern.SIZE - 1) / 2, select.Key.Item2 - (Pattern.SIZE - 1) / 2);
+    //   if (select.Value) grow(pos + offset, plant);
+    // }
   }
 
   void grow(Vector2 pos, Plant plant) {

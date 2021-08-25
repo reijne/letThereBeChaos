@@ -2,83 +2,100 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Controls : MonoBehaviour {
-  [SerializeField] GameObject selectTile_prefab;
-  [SerializeField] GameObject controlObject;
-  [SerializeField] int controlZ;
-  public static Color selectedColor;
-  public static Vector2Int offset = Vector2Int.zero;
-  public static bool show = false;
-  public Dictionary<Color, Pattern> patterns = new Dictionary<Color, Pattern>();
-  List<GameObject> selectTileObjects = new List<GameObject>();
+  public static Dictionary<Color, List<Vector2>> patterns = new Dictionary<Color, List<Vector2>>();
+  [SerializeField] Board board;
+  public static bool spawning = false;
+  public static Vector2 spawnpoint = Vector2.zero;
+  // private void Update() {
+  //   if (spawning && Pattern.selected != null) {
+  //     Debug.Log(spawnpoint);
+  //     Debug.Log(Pattern.selected.color);
+  //     board.spawnPlant(spawnpoint, Pattern.selected.color);
+  //     spawning = false;
+  //   }
+  // }
 
-  private void Update() {
-    if (show && !controlObject.activeSelf) {
-      showControls();
-    }
-  }
+  ///////////
+  /////////// LEGACY
+  ///////////
+  // [SerializeField] GameObject selectTile_prefab;
+  // [SerializeField] GameObject controlObject;
+  // [SerializeField] int controlZ;
+  // public static Color selectedColor;
+  // public static Vector2Int offset = Vector2Int.zero;
+  // public static bool show = false;
+  // public Dictionary<Color, Dictionary<(int, int), bool>> patterns = new Dictionary<Color, Dictionary<(int, int), bool>>();
+  // List<GameObject> selectTileObjects = new List<GameObject>();
 
-  public void showControls() {
-    controlObject.SetActive(true);
-    spawnSelectTiles();
-  }
+  // private void Update() {
+  //   if (show && !controlObject.activeSelf) {
+  //     showControls();
+  //   }
+  // }
 
-  public void hideControls() {
-    clearSelectTiles();
-    controlObject.SetActive(false);
-    show = false;
-  }
+  // public void showControls() {
+  //   controlObject.SetActive(true);
+  //   spawnSelectTiles();
+  // }
 
-  void spawnSelectTiles() {
-    if (patterns.ContainsKey(selectedColor)) {
-      showPattern(patterns[selectedColor]);
-    } else {
-      clearSelectTiles();
-      patterns[selectedColor] = new Pattern();
-      makePattern();
-    }
-  }
+  // public void hideControls() {
+  //   clearSelectTiles();
+  //   controlObject.SetActive(false);
+  //   show = false;
+  // }
 
-  void makePattern() {
-    for (int y = 0; y < Pattern.SIZE; y++) {
-      for (int x = 0; x < Pattern.SIZE; x++) {
-        spawnSelectTile(x + offset.x, y + offset.y);
-      }
-    }
-  }
+  // void spawnSelectTiles() {
+  //   if (patterns.ContainsKey(selectedColor)) {
+  //     showPattern(patterns[selectedColor]);
+  //   } else {
+  //     clearSelectTiles();
+  //     patterns[selectedColor] = new Dictionary<(int, int), bool>();
+  //     makePattern();
+  //   }
+  // }
 
-  void showPattern(Pattern pattern) {
-    foreach (KeyValuePair<(int, int), bool> tileInfo in pattern.selectedTiles) {
-      spawnSelectTile(tileInfo.Key.Item1 + offset.x, tileInfo.Key.Item2 + offset.y, tileInfo.Value);
-    }
-  }
+  // void makePattern() {
+  //   for (int y = 0; y < Pattern.SIZE; y++) {
+  //     for (int x = 0; x < Pattern.SIZE; x++) {
+  //       spawnSelectTile(x + offset.x, y + offset.y);
+  //     }
+  //   }
+  // }
 
-  public void savePattern() {
-    patterns[selectedColor] = new Pattern();
-    foreach (GameObject tile in selectTileObjects) {
-      SelectTile selectTile = tile.GetComponent<SelectTile>();
-      patterns[selectedColor].selectedTiles[(selectTile.x - offset.x, selectTile.y - offset.y)] = selectTile.selected;
-    }
-    // Debug.Log(patterns[selectedColor].toString());
-    hideControls();
-  }
+  // void showPattern(Dictionary<(int, int), bool> pattern) {
+  //   foreach (KeyValuePair<(int, int), bool> tileInfo in pattern) {
+  //     spawnSelectTile(tileInfo.Key.Item1 + offset.x, tileInfo.Key.Item2 + offset.y, tileInfo.Value);
+  //   }
+  // }
 
-  void spawnSelectTile(int x, int y, bool selected = false) {
-    Vector3 spawnPoint = new Vector3(x * Tile.SIZE, y * Tile.SIZE, controlZ);
-    spawnPoint += transform.position;
-    GameObject tileObject = Instantiate(selectTile_prefab, spawnPoint, Quaternion.identity);
-    tileObject.transform.SetParent(transform);
-    SelectTile sTile = tileObject.GetComponent<SelectTile>();
-    sTile.choseColor(new Color(selectedColor.r / 2, selectedColor.g / 2, selectedColor.b / 2));
-    sTile.x = x;
-    sTile.y = y;
-    if (selected) sTile.select();
-    else sTile.setColor(SelectTile.normalColor);
-    selectTileObjects.Add(tileObject);
-  }
+  // public void savePattern() {
+  //   patterns[selectedColor] = new Dictionary<(int, int), bool>();
+  //   foreach (GameObject tile in selectTileObjects) {
+  //     SelectTile selectTile = tile.GetComponent<SelectTile>();
+  //     patterns[selectedColor][(selectTile.x - offset.x, selectTile.y - offset.y)] = selectTile.selected;
+  //   }
+  //   // Debug.Log(patterns[selectedColor].toString());
+  //   // hideControls();
+  // }
 
-  void clearSelectTiles() {
-    foreach (GameObject tile in selectTileObjects) Destroy(tile);
-    selectTileObjects.RemoveRange(0, selectTileObjects.Count);
-  }
+  // void spawnSelectTile(int x, int y, bool selected = false) {
+  //   Vector3 spawnPoint = new Vector3(x * Tile.SIZE, y * Tile.SIZE, controlZ);
+  //   spawnPoint += transform.position;
+  //   GameObject tileObject = Instantiate(selectTile_prefab, spawnPoint, Quaternion.identity);
+  //   tileObject.transform.SetParent(transform);
+  //   SelectTile sTile = tileObject.GetComponent<SelectTile>();
+  //   sTile.choseColor(new Color(selectedColor.r / 2, selectedColor.g / 2, selectedColor.b / 2));
+  //   sTile.x = x;
+  //   sTile.y = y;
+  //   if (selected) sTile.select();
+  //   else sTile.setColor(SelectTile.normalColor);
+  //   selectTileObjects.Add(tileObject);
+  // }
+
+  // void clearSelectTiles() {
+  //   foreach (GameObject tile in selectTileObjects) Destroy(tile);
+  //   selectTileObjects.RemoveRange(0, selectTileObjects.Count);
+  // }
 }

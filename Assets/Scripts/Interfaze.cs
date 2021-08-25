@@ -18,7 +18,7 @@ public class Interfaze : MonoBehaviour {
   }
 
   private void Update() {
-    printCounts();
+    // printCounts();
   }
   public void printCounts() {
     foreach (KeyValuePair<Color, int> kvp in colorCounts) {
