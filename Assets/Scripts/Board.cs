@@ -3,29 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Board : MonoBehaviour {
-  [SerializeField] int width;
-  [SerializeField] int height;
+  [SerializeField] public int width;
+  [SerializeField] public int height;
   [SerializeField] int boardZ;
   [SerializeField] float frequency;
   [SerializeField] GameObject tile_prefab;
   [SerializeField] GameObject plant_prefab;
   [SerializeField] Controls controls;
+  [SerializeField] Interfaze interfaze;
   List<(Vector2, Color)> plantInitPositions;
   public List<Tile> tiles = new List<Tile>();
   Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
   float nextTick;
+  bool started = false;
 
   void Start() {
     plantInitPositions = new List<(Vector2, Color)>() {
       (new Vector2(6,7), Color.blue),
       (new Vector2(1,1), Color.cyan),
-      (new Vector2(9,6), Color.magenta),
+      (new Vector2(34,22), Color.magenta),
+      (new Vector2(9,6), Color.red),
+      (new Vector2(29,49), Color.green),
     };
     nextTick = Time.time + 1 / frequency;
-    Tile.SIZE = 0.5;
-    Pattern.SIZE = 3;
+    // Tile.SIZE = Screen.height / height;
+    Tile.SIZE = 1;
+    Pattern.SIZE = 5;
     spawnTiles();
     spawnPlants();
+  }
+
+  public void startGame() {
+    started = true;
   }
 
   void spawnTiles() {
@@ -51,6 +60,7 @@ public class Board : MonoBehaviour {
     plant.x = (int)plantPos.x;
     plant.y = (int)plantPos.y;
     plant.setColor(color);
+    interfaze.addColorCount(color);
   }
 
   bool outOfBounds(Vector2 pos) {
@@ -66,7 +76,7 @@ public class Board : MonoBehaviour {
   }
 
   void FixedUpdate() {
-    if (Time.time >= nextTick) {
+    if (Time.time >= nextTick && started) {
       tick();
       nextTick = Time.time + 1 / frequency;
     }

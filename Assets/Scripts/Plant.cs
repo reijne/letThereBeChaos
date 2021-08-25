@@ -5,6 +5,11 @@ using UnityEngine;
 public class Plant : Tile {
   public int x;
   public int y;
+  public static int count;
+  int age = 0;
+  private void Start() {
+    count++;
+  }
 
   private void OnMouseDown() {
     if (Controls.show) return;

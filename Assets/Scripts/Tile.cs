@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Tile : MonoBehaviour {
-  public static int SIZE;
+  public static float SIZE;
   [SerializeField] SpriteRenderer spriteRenderer;
   public Color color;
   private void Start() {
