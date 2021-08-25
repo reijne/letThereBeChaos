@@ -4,21 +4,40 @@ using UnityEngine;
 
 public class Plant : Tile {
   public static int count;
+  public bool isAlive = true;
   int age = 0;
   private void Start() {
     count++;
   }
 
   public void tick() {
+    age++;
+    if (age == board.lifeTime) {
+      kill();
+    } else if (age >= board.deathTimeMult * board.lifeTime) {
+      remove();
+    }
+  }
 
+  public void revive(Color color) {
+    isAlive = true;
+    age = 0;
+    setColor(color);
+    gameObject.SetActive(true);
+  }
+
+  private void kill() {
+    // gameObject.SetActive(false);
+    setColor(new Color(0, 0, 0, 0));
+    isAlive = false;
+  }
+
+  private void remove() {
+    board.removePlant(pos);
   }
 
   private void OnMouseDown() {
-    // if (Controls.show) return;
-    // Debug.Log(String.Format("Setting color to {0}", color));
-    // Controls.selectedColor = color;
-    // Controls.offset = new Vector2Int(x - (Pattern.SIZE - 1) / 2, y - (Pattern.SIZE - 1) / 2);
-    // Debug.Log(String.Format("Updating offset to :: {0}", Controls.offset));
-    // Controls.show = true;
+    remove();
+    if (Pattern.selected != null && pos != null) board.spawnPlant(pos, Pattern.selected.color);
   }
 }

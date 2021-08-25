@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class Interfaze : MonoBehaviour {
   [SerializeField] Transform indicatorSpawnpoint;
   [SerializeField] Image totalImage;
+  [SerializeField] Text totalText;
   public Dictionary<Color, int> colorCounts = new Dictionary<Color, int>();
 
   public void updateColorIndicators(int total) {

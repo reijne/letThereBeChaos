@@ -6,8 +6,28 @@ using UnityEngine;
 public class Controls : MonoBehaviour {
   public static Dictionary<Color, List<Vector2>> patterns = new Dictionary<Color, List<Vector2>>();
   [SerializeField] Board board;
+  [SerializeField] List<Pattern> patternObjects = new List<Pattern>();
   public static bool spawning = false;
   public static Vector2 spawnpoint = Vector2.zero;
+  private List<KeyCode> numbers = new List<KeyCode>() {
+    KeyCode.Alpha1,
+    KeyCode.Alpha2,
+    KeyCode.Alpha3,
+    KeyCode.Alpha4,
+    KeyCode.Alpha5
+  };
+  private void Update() {
+    handleInput();
+  }
+
+  private void handleInput() {
+    for (int i = 0; i < numbers.Count; i++) {
+      if (Input.GetKeyDown(numbers[i])) {
+        patternObjects[i].select();
+      }
+    }
+  }
+
   // private void Update() {
   //   if (spawning && Pattern.selected != null) {
   //     Debug.Log(spawnpoint);
