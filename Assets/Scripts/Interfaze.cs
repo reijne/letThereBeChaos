@@ -8,19 +8,9 @@ public class Interfaze : MonoBehaviour {
   [SerializeField] Transform indicatorSpawnpoint;
   [SerializeField] Image totalImage;
   [SerializeField] Text totalText;
-  [SerializeField] ComputeShader shader;
-  [SerializeField] RenderTexture renderTexture;
+
   public Dictionary<Color, int> colorCounts = new Dictionary<Color, int>();
 
-  private void Start() {
-    makeRenderTexture();
-  }
-
-  private void makeRenderTexture() {
-    renderTexture = new RenderTexture(board.width, board.height, 24);
-    renderTexture.enableRandomWrite = true;
-    renderTexture.Create();
-  }
   public void updateColorIndicators(int total) {
     // get width 
   }

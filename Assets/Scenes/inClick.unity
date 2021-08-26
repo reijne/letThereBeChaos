@@ -361,6 +361,7 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Eyes
   m_TagString: MainCamera
@@ -449,6 +450,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b07c04675d8b70546af6f4e12cd41572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  board: {fileID: 1100988997}
+  computeShader: {fileID: 7200000, guid: b4ee6783b320a104a9b47f5e6b1c1642, type: 3}
+  renderTexture: {fileID: 0}
 --- !u!1001 &577577775
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -679,8 +695,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5892a1995d25644c9ba58bc99994cb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 300
-  height: 200
+  width: 200
+  height: 100
   lifeTime: 5
   deathTimeMult: 2
   boardZ: 10
@@ -1179,10 +1195,10 @@ MonoBehaviour:
       - m_Target: {fileID: 1100988997}
         m_TargetAssemblyTypeName: Board, Assembly-CSharp
         m_MethodName: startGame
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1686253580}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1346,8 +1362,6 @@ MonoBehaviour:
   indicatorSpawnpoint: {fileID: 1953631142}
   totalImage: {fileID: 1029272123}
   totalText: {fileID: 1105343742}
-  shader: {fileID: 7200000, guid: b4ee6783b320a104a9b47f5e6b1c1642, type: 3}
-  renderTexture: {fileID: 0}
 --- !u!224 &1854150274 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1239580047592305565, guid: 041df1613a3a76446b278852afb08cd3, type: 3}

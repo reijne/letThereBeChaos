@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Threading;
 
 public class Board : MonoBehaviour {
   [SerializeField] public int width;
@@ -21,6 +23,8 @@ public class Board : MonoBehaviour {
   float nextTick;
   bool started = false;
   bool done = true;
+  Thread ticker_thread;
+  Mutex mutex;
 
   void Start() {
     plantInitPositions = new List<(Vector2, int)>();
@@ -38,8 +42,10 @@ public class Board : MonoBehaviour {
     StartCoroutine("ticker");
   }
 
-  public void startGame() {
-    started = true;
+  public void startGame(Button button) {
+    started = !started;
+    if (started) button.GetComponentInChildren<Text>().text = "STOP";
+    else button.GetComponentInChildren<Text>().text = "START";
   }
 
   void spawnTiles() {

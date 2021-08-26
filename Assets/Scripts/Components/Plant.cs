@@ -27,7 +27,8 @@ public class Plant : Tile {
   }
 
   private void kill() {
-    gameObject.SetActive(false);
+    // gameObject.SetActive(false);
+    setColor(Pallette.invis);
     isAlive = false;
   }
 
