@@ -1,14 +1,32 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
+struct Point {
+  float2 pos;
+  float4 color;
+  int age;
+};
+
+struct Spread {
+  float2 pattern[9];
+};
+
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
-RWTexture2D<float4> Result;
+// RWTexture2D<float4> Result;
+RWStructuredBuffer<Point> points;
+RWStructuredBuffer<Spread> spreads;
 
-[numthreads(8,8,1)]
+[numthreads(10,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
+  float xpos = id.x;
 
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+  Point p = points[id.x];
+  p.age++;
+  p.color = float4(xpos, 0, 0, 1);
+  points[id.x] = p;
+  // TODO: insert actual code here!
+  
+  // Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
 }

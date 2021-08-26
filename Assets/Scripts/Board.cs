@@ -14,8 +14,9 @@ public class Board : MonoBehaviour {
   [SerializeField] float frequency;
   [SerializeField] GameObject tile_prefab;
   [SerializeField] GameObject plant_prefab;
-  [SerializeField] Controls controls;
+  [SerializeField] EyeComputer eyeComputer;
   [SerializeField] Interfaze interfaze;
+  [SerializeField] Controls controls;
   List<(Vector2, int)> plantInitPositions;
   public List<Tile> tiles = new List<Tile>();
   Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
@@ -96,8 +97,9 @@ public class Board : MonoBehaviour {
 
   void FixedUpdate() {
     if (Time.time >= nextTick && started && done) {
-      done = false;
+      // done = false;
       // tick();
+      eyeComputer.preparePlusCompute();
       nextTick = Time.time + 1 / frequency;
     }
   }

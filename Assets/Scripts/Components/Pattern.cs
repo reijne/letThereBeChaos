@@ -13,7 +13,7 @@ public class Pattern : MonoBehaviour {
   [SerializeField] RectTransform rect;
   [SerializeField] public Color color;
   public List<Vector2> pattern = new List<Vector2>();
-  private void Start() {
+  private void Awake() {
     if (relPositions.Count == 0) makeRelativePositions();
     if (!pallete.Contains(color)) pallete.Add(color);
     patternTile.color = color;
