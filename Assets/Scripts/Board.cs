@@ -18,7 +18,6 @@ public class Board : MonoBehaviour {
   public List<Tile> tiles = new List<Tile>();
   Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
   List<Vector2> plantPositions = new List<Vector2>();
-  List<Vector2> removedPlants = new List<Vector2>();
   float nextTick;
   bool started = false;
   bool done = true;
@@ -36,7 +35,7 @@ public class Board : MonoBehaviour {
     Pattern.SIZE = 3;
     spawnTiles();
     // spawnPlants();
-    // StartCoroutine("ticker");
+    StartCoroutine("ticker");
   }
 
   public void startGame() {
@@ -70,9 +69,8 @@ public class Board : MonoBehaviour {
     interfaze.addColorCount(color);
   }
 
-  public void removePlant(Vector2 pos) {
-    removedPlants.Add(pos);
-    // plants.Remove(plant.pos);
+  public void removePlant(Plant plant) {
+    plants.Remove(plant.pos);
     // System.GC.Collect();
   }
 
@@ -92,8 +90,8 @@ public class Board : MonoBehaviour {
 
   void FixedUpdate() {
     if (Time.time >= nextTick && started && done) {
-      // done = false;
-      tick();
+      done = false;
+      // tick();
       nextTick = Time.time + 1 / frequency;
     }
   }
@@ -109,31 +107,22 @@ public class Board : MonoBehaviour {
   }
 
   void tick() {
-    List<(Vector2, Color)> growers = new List<(Vector2, Color)>();
+    List<Vector2> localPositions = new List<Vector2>();
     foreach (Vector2 plantPos in plants.Keys) {
-      growers = checkGrowth(plantPos, plants[plantPos], growers);
+      localPositions.Add(plantPos);
+    }
+
+    foreach (Vector2 plantPos in localPositions) {
+      checkGrowth(plantPos, plants[plantPos]);
       plants[plantPos].tick();
     }
-    foreach (Vector2 pos in removedPlants) {
-      Destroy(plants[pos].gameObject);
-      Destroy(plants[pos]);
-      plants.Remove(pos);
-
-    }
-
-    foreach ((Vector2, Color) tup in growers) {
-      spawnPlant(tup.Item1, tup.Item2);
-    }
-
-    removedPlants = new List<Vector2>();
   }
 
-  List<(Vector2, Color)> checkGrowth(Vector2 pos, Plant plant, List<(Vector2, Color)> growers) {
-    if (plant.color == Pallette.invis) return growers;
+  void checkGrowth(Vector2 pos, Plant plant) {
+    if (plant.color == Pallette.invis) return;
     foreach (Vector2 relPos in Controls.patterns[plant.color]) {
-      if (grow(pos + relPos, plant)) growers.Add((pos + relPos, plant.color));
+      grow(pos + relPos, plant);
     }
-    return growers;
     // if (!controls.patterns.ContainsKey(plant.color)) return;
     // Dictionary<(int, int), bool> pattern = controls.patterns[plant.color];
     // foreach (KeyValuePair<(int, int), bool> select in pattern) {
@@ -142,9 +131,9 @@ public class Board : MonoBehaviour {
     // }
   }
 
-  bool grow(Vector2 pos, Plant plant) {
-    return !plants.ContainsKey(pos) && plant.isAlive;
-    // spawnPlant(pos, plant.color);
+  void grow(Vector2 pos, Plant plant) {
+    if (plants.ContainsKey(pos) || !plant.isAlive) return;
+    spawnPlant(pos, plant.color);
   }
 
   void rePlant(Vector2 pos, Color color) {

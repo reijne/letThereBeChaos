@@ -42,8 +42,6 @@ public class Pattern : MonoBehaviour {
 
   private void spawnTile(Vector2 pos) {
     float tileSize = rect.sizeDelta.y / SIZE;
-    Debug.Log(rect.sizeDelta.y);
-    Debug.Log(tileSize);
     Vector3 offset = new Vector3(pos.x * tileSize, pos.y * tileSize, 0);
     Image tileImage = Instantiate(patternTile, transform.position + offset, Quaternion.identity);
     tileImage.transform.SetParent(transform);

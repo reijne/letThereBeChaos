@@ -27,13 +27,14 @@ public class Plant : Tile {
   }
 
   private void kill() {
-    // gameObject.SetActive(false);
-    setColor(new Color(0, 0, 0, 0));
+    gameObject.SetActive(false);
     isAlive = false;
   }
 
   private void remove() {
-    board.removePlant(pos);
+    board.removePlant(this);
+    Destroy(this.gameObject);
+    Destroy(this);
   }
 
   private void OnMouseDown() {
