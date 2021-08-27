@@ -28,17 +28,34 @@ public class EyeComputer : MonoBehaviour {
     // NW (-1, 1) :: 128
     // N (-1, -1) :: 64
     positionalMap = new Dictionary<Vector2, uint>() {
-      {new Vector2(-1, 1), 128}, // NW
-      {new Vector2(0, 1), 64},   // N
-      {new Vector2(1, 1), 32},   // NE
 
-      {new Vector2(-1, 0), 16},  // W
+    //   // Little Endian
+      
+    //   {new Vector2(-1, 1), 128}, // NW
+    //   {new Vector2(0, 1), 64},   // N
+    //   {new Vector2(1, 1), 32},   // NE
+
+    //   {new Vector2(-1, 0), 16},  // W
+    //   {new Vector2(0, 0), 0},  // 0
+    //   {new Vector2(1, 0), 8},   // E
+
+    //   {new Vector2(-1, -1), 4},   // SW
+    //   {new Vector2(0, -1), 2},   // S
+    //   {new Vector2(1, -1), 1},   // SE
+
+      // Big Endian
+
+      {new Vector2(-1, -1), 1}, // NW
+      {new Vector2(0, -1), 2},   // N
+      {new Vector2(1, -1), 4},   // NE
+
+      {new Vector2(-1, 0), 8},  // W
       {new Vector2(0, 0), 0},  // 0
-      {new Vector2(1, 0), 8},   // E
+      {new Vector2(1, 0), 16},   // E
 
-      {new Vector2(-1, -1), 4},   // SW
-      {new Vector2(0, -1), 2},   // S
-      {new Vector2(1, -1), 1},   // SE
+      {new Vector2(-1, 1), 32},   // SW
+      {new Vector2(0, 1), 64},   // S
+      {new Vector2(1, 1), 128},   // SE
     };
     points = new Point[board.width * board.height];
     spreads = new Spread[Controls.patterns.Count];
@@ -106,6 +123,7 @@ public class EyeComputer : MonoBehaviour {
       for (int i = 0; i < kvp.Value.Count; i++) {
         s.pattern += positionalMap[kvp.Value[i]];
       }
+
       spreads[spreadID] = s;
       spreadID++;
     }

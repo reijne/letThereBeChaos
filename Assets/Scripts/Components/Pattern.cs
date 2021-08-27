@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class Pattern : MonoBehaviour {
   public static int SIZE = 3;
-  public static int tileCount = 2;
+  public static int tileCount = 1;
   public static List<Vector2> relPositions = new List<Vector2>();
   public static Pattern selected;
   public static List<Color> pallete = new List<Color>();

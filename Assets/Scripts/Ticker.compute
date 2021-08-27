@@ -36,47 +36,57 @@ void CSMain (uint3 id : SV_DispatchThreadID)
   float4 possibleColors[8];
   Point neighbours[8];
 
+//   bool notNorthBorder = id.x >= width;
+//   bool notWestBorder  = (id.x % width) > 0;
+//   bool notEastBorder  = (id.x % width) != width-1;
+//   bool notSouthBorder = id.x / width != height-1;
+
+  bool notNorthBorder = true;
+  bool notWestBorder  = true;
+  bool notEastBorder  = true;
+  bool notSouthBorder = true;
+
   /// GATHERING ALL THE NEIGHBOURS
-  if (id.x >= width && id.x % width > 0) {
+//   if (notNorthBorder && notWestBorder) {
     Point NW = points[id.x-1 - width];
     // possibleColors[0] = NW.color;
     neighbours[0] = NW;
-  }
+//   }
 
-  if (id.x >= width) {
+//   if (notNorthBorder) {
     Point N = points[id.x - width];
     neighbours[1] = N;
-  }
+//   }
 
-  if (id.x >= width && id.x % width != width-1) {
+//   if (notNorthBorder && notEastBorder) {
     Point NE = points[id.x+1 - width];
     neighbours[2] = NE;
-  }
+//   }
 
-  if (id.x % width > 0) {
+//   if (notWestBorder) {
     Point W = points[id.x-1];
     neighbours[3] = W;
-  }
+//   }
 
-  if (id.x % width != width-1) {
+//   if (notEastBorder) {
     Point E = points[id.x+1];
     neighbours[4] = E;
-  }
+//   }
 
-  if (id.x / width != height-1 && id.x % width > 0) {
+//   if (notSouthBorder && notWestBorder) {
     Point SW = points[id.x-1 + width];
     neighbours[5] = SW;
-  }
+//   }
 
-  if (id.x / width != height-1) {
+//   if (notSouthBorder) {
     Point S = points[id.x + width];
     neighbours[6] = S;
-  }
+//   }
 
-  if (id.x / width != height-1 && id.x % width != width-1) {
+//   if (notSouthBorder && notEastBorder) {
     Point SE = points[id.x+1 + width];
     neighbours[7] = SE;
-  }
+//   }
 
   int colorID = 0;
   int yougestAge = -1;
@@ -94,7 +104,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
       //   // [0 , 0,  0, 0, 0,  1, 0,  1]
         // if (i == 7) grow = s.pattern & 1;
         // else grow = s.pattern & (1 << 7-i);
-        grow = s.pattern & (i << 7-i);
+        grow = s.pattern & (1 << 7-i);
 
         if (grow != 0) {
           if (yougestAge == -1 || yougestAge > neighbour.age) {
