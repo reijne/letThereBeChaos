@@ -2,31 +2,131 @@
 #pragma kernel CSMain
 
 struct Point {
-  float2 pos;
   float4 color;
   int age;
 };
 
 struct Spread {
-  float2 pattern[9];
+  float4 color;
+  uint pattern;
 };
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 // RWTexture2D<float4> Result;
+int height;
+int width;
+int lifeTime;
+int deathTimeMult;
+int patternCount;
 RWStructuredBuffer<Point> points;
 RWStructuredBuffer<Spread> spreads;
+RWTexture2D<float4> board;
 
-[numthreads(10,1,1)]
+float4 black = float4(0,0,0,1);
+
+[numthreads(100,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-  float xpos = id.x;
-
   Point p = points[id.x];
-  p.age++;
-  p.color = float4(xpos, 0, 0, 1);
-  points[id.x] = p;
-  // TODO: insert actual code here!
+  if (!all(p.color == black)) p.age++;
+  // p.color = float4(xpos, 0, 0, 1);
   
-  // Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+  // PATTERN :: [NW, N, NE, W, E, SW, S, SE]
+  float4 possibleColors[8];
+  Point neighbours[8];
+
+  /// GATHERING ALL THE NEIGHBOURS
+  if (id.x >= width && id.x % width > 0) {
+    Point NW = points[id.x-1 - width];
+    // possibleColors[0] = NW.color;
+    neighbours[0] = NW;
+  }
+
+  if (id.x >= width) {
+    Point N = points[id.x - width];
+    neighbours[1] = N;
+  }
+
+  if (id.x >= width && id.x % width != width-1) {
+    Point NE = points[id.x+1 - width];
+    neighbours[2] = NE;
+  }
+
+  if (id.x % width > 0) {
+    Point W = points[id.x-1];
+    neighbours[3] = W;
+  }
+
+  if (id.x % width != width-1) {
+    Point E = points[id.x+1];
+    neighbours[4] = E;
+  }
+
+  if (id.x / width != height-1 && id.x % width > 0) {
+    Point SW = points[id.x-1 + width];
+    neighbours[5] = SW;
+  }
+
+  if (id.x / width != height-1) {
+    Point S = points[id.x + width];
+    neighbours[6] = S;
+  }
+
+  if (id.x / width != height-1 && id.x % width != width-1) {
+    Point SE = points[id.x+1 + width];
+    neighbours[7] = SE;
+  }
+
+  int colorID = 0;
+  int yougestAge = -1;
+  float4 youngestColour;
+  uint grow;
+
+  /// LOOPING OVER NEIGHBOURS AND THE PATTERNS
+  for (int j = 0; j < patternCount; j++) {
+    Spread s = spreads[j];
+    for (int i = 0; i < 8; i++) {
+      Point neighbour = neighbours[i];
+      if (all(s.color == neighbour.color)) {
+      //   // then go into proper neighbour in pattern, to see if grow
+      //   // [NW, N, NE, W, E, SW, S, SE]
+      //   // [0 , 0,  0, 0, 0,  1, 0,  1]
+        // if (i == 7) grow = s.pattern & 1;
+        // else grow = s.pattern & (1 << 7-i);
+        grow = s.pattern & (i << 7-i);
+
+        if (grow != 0) {
+          if (yougestAge == -1 || yougestAge > neighbour.age) {
+            youngestColour = neighbour.color;
+            yougestAge = neighbour.age;
+          }
+          possibleColors[colorID] = neighbour.color;
+          colorID++;
+        }
+      }
+    }
+  }
+
+  /// SETTING THE COLOUR
+  // if (colorID > 0) p.color = possibleColors[0];
+  if (yougestAge != -1 && !all(youngestColour == p.color)) {
+    p.color = youngestColour;
+    p.age = 0;
+  }
+
+  if (p.age == lifeTime) {
+    p.color = black;
+    // p.age = 0;
+  } else if (p.age > lifeTime * deathTimeMult) {
+    p.color = black;
+    p.age = 0;
+  }
+  points[id.x] = p;
+
+  ////// TEXTURE LOGIC
+  int2 pos = {id.x % width, id.x / width};
+  board[pos] = p.color;
+  // Set p.color using some rule, -- FCFS, Majority, LCFS, Colour priority(racism)
+  // Result[pos] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
 }

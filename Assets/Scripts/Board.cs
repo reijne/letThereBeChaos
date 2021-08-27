@@ -38,9 +38,9 @@ public class Board : MonoBehaviour {
     nextTick = Time.time + 1 / frequency;
     Tile.SIZE = 1;
     Pattern.SIZE = 3;
-    spawnTiles();
+    // spawnTiles();
     // spawnPlants();
-    StartCoroutine("ticker");
+    // StartCoroutine("ticker");
   }
 
   public void startGame(Button button) {
@@ -99,7 +99,7 @@ public class Board : MonoBehaviour {
     if (Time.time >= nextTick && started && done) {
       // done = false;
       // tick();
-      eyeComputer.preparePlusCompute();
+      eyeComputer.doCompute();
       nextTick = Time.time + 1 / frequency;
     }
   }

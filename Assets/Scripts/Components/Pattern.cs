@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class Pattern : MonoBehaviour {
   public static int SIZE = 3;
-  public static int tileCount = 7;
+  public static int tileCount = 2;
   public static List<Vector2> relPositions = new List<Vector2>();
   public static Pattern selected;
   public static List<Color> pallete = new List<Color>();
@@ -38,14 +38,18 @@ public class Pattern : MonoBehaviour {
       pattern.Add(localRels[id]);
       localRels.RemoveAt(id);
     }
+    foreach (Vector2 pos in localRels) {
+      spawnTile(pos, true);
+    }
   }
 
-  private void spawnTile(Vector2 pos) {
+  private void spawnTile(Vector2 pos, bool empty = false) {
     float tileSize = rect.sizeDelta.y / SIZE;
     Vector3 offset = new Vector3(pos.x * tileSize, pos.y * tileSize, 0);
     Image tileImage = Instantiate(patternTile, transform.position + offset, Quaternion.identity);
     tileImage.transform.SetParent(transform);
     tileImage.rectTransform.sizeDelta = new Vector2(tileSize, tileSize);
+    if (empty) tileImage.color = new Color(patternTile.color.r, patternTile.color.g, patternTile.color.b, 0.3f);
   }
 
   public void deselect() {
