@@ -35,58 +35,74 @@ void CSMain (uint3 id : SV_DispatchThreadID)
   // PATTERN :: [NW, N, NE, W, E, SW, S, SE]
   float4 possibleColors[8];
   Point neighbours[8];
+  for (int i = 0; i < 8; i++) {
+    neighbours[i] = p;
+  }
 
-//   bool notNorthBorder = id.x >= width;
-//   bool notWestBorder  = (id.x % width) > 0;
-//   bool notEastBorder  = (id.x % width) != width-1;
-//   bool notSouthBorder = id.x / width != height-1;
 
-  bool notNorthBorder = true;
-  bool notWestBorder  = true;
-  bool notEastBorder  = true;
-  bool notSouthBorder = true;
+  uint uWidth = (uint) width;
+  uint uHeight = (uint) height;
+
+
+  bool notNorthBorder = id.x >= uWidth;
+  bool notWestBorder  = (id.x % uWidth) > 0;
+  bool notEastBorder  = (id.x % uWidth) != uWidth-1;
+  bool notSouthBorder = id.x / uWidth != uHeight-1;
+
+//   bool notNorthBorder = true;
+//   bool notWestBorder;
+//   bool notEastBorder  = true;
+//   bool notSouthBorder = true;
+
+//   int localPos = id.x;
+//   while(localPos > width) {
+//     localPos -= width;
+//   }
+
+//   notWestBorder = localPos > 0;
+//   notEastBorder = localPos != width - 1;
 
   /// GATHERING ALL THE NEIGHBOURS
-//   if (notNorthBorder && notWestBorder) {
+  if (notNorthBorder && notWestBorder) {
     Point NW = points[id.x-1 - width];
     // possibleColors[0] = NW.color;
     neighbours[0] = NW;
-//   }
+  }
 
-//   if (notNorthBorder) {
+  if (notNorthBorder) {
     Point N = points[id.x - width];
     neighbours[1] = N;
-//   }
+  }
 
-//   if (notNorthBorder && notEastBorder) {
+  if (notNorthBorder && notEastBorder) {
     Point NE = points[id.x+1 - width];
     neighbours[2] = NE;
-//   }
+  }
 
-//   if (notWestBorder) {
+  if (notWestBorder) {
     Point W = points[id.x-1];
     neighbours[3] = W;
-//   }
+  }
 
-//   if (notEastBorder) {
+  if (notEastBorder) {
     Point E = points[id.x+1];
     neighbours[4] = E;
-//   }
+  }
 
-//   if (notSouthBorder && notWestBorder) {
+  if (notSouthBorder && notWestBorder) {
     Point SW = points[id.x-1 + width];
     neighbours[5] = SW;
-//   }
+  }
 
-//   if (notSouthBorder) {
+  if (notSouthBorder) {
     Point S = points[id.x + width];
     neighbours[6] = S;
-//   }
+  }
 
-//   if (notSouthBorder && notEastBorder) {
+  if (notSouthBorder && notEastBorder) {
     Point SE = points[id.x+1 + width];
     neighbours[7] = SE;
-//   }
+  }
 
   int colorID = 0;
   int yougestAge = -1;
@@ -137,6 +153,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
   ////// TEXTURE LOGIC
   int2 pos = {id.x % width, id.x / width};
   board[pos] = p.color;
+
   // Set p.color using some rule, -- FCFS, Majority, LCFS, Colour priority(racism)
   // Result[pos] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
 }

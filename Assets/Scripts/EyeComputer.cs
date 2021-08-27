@@ -31,31 +31,31 @@ public class EyeComputer : MonoBehaviour {
 
     //   // Little Endian
       
-    //   {new Vector2(-1, 1), 128}, // NW
-    //   {new Vector2(0, 1), 64},   // N
-    //   {new Vector2(1, 1), 32},   // NE
+      {new Vector2(1, 1), 128}, // NW
+      {new Vector2(0, 1), 64},   // N
+      {new Vector2(-1, 1), 32},   // NE
 
-    //   {new Vector2(-1, 0), 16},  // W
-    //   {new Vector2(0, 0), 0},  // 0
-    //   {new Vector2(1, 0), 8},   // E
+      {new Vector2(1, 0), 16},  // W
+      {new Vector2(0, 0), 0},  // 0
+      {new Vector2(-1, 0), 8},   // E
 
-    //   {new Vector2(-1, -1), 4},   // SW
-    //   {new Vector2(0, -1), 2},   // S
-    //   {new Vector2(1, -1), 1},   // SE
+      {new Vector2(1, -1), 4},   // SW
+      {new Vector2(0, -1), 2},   // S
+      {new Vector2(-1, -1), 1},   // SE
 
       // Big Endian
 
-      {new Vector2(-1, -1), 1}, // NW
-      {new Vector2(0, -1), 2},   // N
-      {new Vector2(1, -1), 4},   // NE
+    //   {new Vector2(-1, -1), 1}, // NW
+    //   {new Vector2(0, -1), 2},   // N
+    //   {new Vector2(1, -1), 4},   // NE
 
-      {new Vector2(-1, 0), 8},  // W
-      {new Vector2(0, 0), 0},  // 0
-      {new Vector2(1, 0), 16},   // E
+    //   {new Vector2(-1, 0), 8},  // W
+    //   {new Vector2(0, 0), 0},  // 0
+    //   {new Vector2(1, 0), 16},   // E
 
-      {new Vector2(-1, 1), 32},   // SW
-      {new Vector2(0, 1), 64},   // S
-      {new Vector2(1, 1), 128},   // SE
+    //   {new Vector2(-1, 1), 32},   // SW
+    //   {new Vector2(0, 1), 64},   // S
+    //   {new Vector2(1, 1), 128},   // SE
     };
     points = new Point[board.width * board.height];
     spreads = new Spread[Controls.patterns.Count];
@@ -88,7 +88,6 @@ public class EyeComputer : MonoBehaviour {
     computeShader.SetInt("deathTimeMult", board.deathTimeMult);
     computeShader.SetInt("patternCount", Controls.patterns.Count);
     computeShader.SetTexture(0, "board", renderTexture);
-    Debug.Log(points[1].color);
   }
 
   private void OnApplicationQuit() {
@@ -99,6 +98,7 @@ public class EyeComputer : MonoBehaviour {
   public void doCompute() {
     computeShader.Dispatch(0, points.Length / 100, 1, 1);
     pointsBuffer.GetData(points);
+    Debug.Log(points[319].age);
   }
 
   private void addPoints() {
