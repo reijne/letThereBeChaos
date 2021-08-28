@@ -4,6 +4,7 @@
 struct Point {
   float4 color;
   int age;
+  int alive;
 };
 
 struct Spread {
@@ -25,16 +26,18 @@ RWTexture2D<float4> board;
 
 float4 black = float4(0,0,0,1);
 
-[numthreads(100,1,1)]
+[numthreads(420,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
+  // lifeTime *= 2;
   Point p = points[id.x];
-  if (!all(p.color == black)) p.age++;
+  // if (!all(p.color == black)) p.age++;
+  // p.age += 2;
   // p.color = float4(xpos, 0, 0, 1);
   
   // PATTERN :: [NW, N, NE, W, E, SW, S, SE]
   float4 possibleColors[8];
-  Point neighbours[8];
+  Point neighbours[8] = {p,p,p,p,p,p,p,p};
 
   /// GATHERING ALL THE NEIGHBOURS
   if (id.x >= width && id.x % width > 0) {
@@ -88,13 +91,14 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     Spread s = spreads[j];
     for (int i = 0; i < 8; i++) {
       Point neighbour = neighbours[i];
+      if (!neighbour.alive) continue;
       if (all(s.color == neighbour.color)) {
       //   // then go into proper neighbour in pattern, to see if grow
       //   // [NW, N, NE, W, E, SW, S, SE]
       //   // [0 , 0,  0, 0, 0,  1, 0,  1]
         // if (i == 7) grow = s.pattern & 1;
         // else grow = s.pattern & (1 << 7-i);
-        grow = s.pattern & (i << 7-i);
+        grow = s.pattern & (1 << 7-i);
 
         if (grow != 0) {
           if (yougestAge == -1 || yougestAge > neighbour.age) {
@@ -110,18 +114,22 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
   /// SETTING THE COLOUR
   // if (colorID > 0) p.color = possibleColors[0];
-  if (yougestAge != -1 && !all(youngestColour == p.color)) {
+  if (p.alive == 1 && yougestAge != -1 && !all(youngestColour == p.color) && all(p.color == black)) {
     p.color = youngestColour;
     p.age = 0;
   }
 
-  if (p.age == lifeTime) {
+  /// Death mechanic
+  if (p.age == lifeTime && !all(p.color == black)) { // dead point
     p.color = black;
-    // p.age = 0;
-  } else if (p.age > lifeTime * deathTimeMult) {
+    p.alive = 0;
+  } else if (p.age > lifeTime * deathTimeMult) { // revived point
     p.color = black;
     p.age = 0;
+    p.alive = 1;
   }
+
+  p.age++;
   points[id.x] = p;
 
   ////// TEXTURE LOGIC

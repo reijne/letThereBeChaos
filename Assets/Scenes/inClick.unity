@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 183133949}
   - component: {fileID: 183133950}
   m_Layer: 0
-  m_Name: Controls
+  m_Name: ControlBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -172,13 +172,14 @@ RectTransform:
   - {fileID: 1345583896}
   - {fileID: 60602876}
   - {fileID: 3752381}
+  - {fileID: 1686253579}
   m_Father: {fileID: 1719417689}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -139.94556, y: -444.34418}
-  m_SizeDelta: {x: 1600, y: 150}
+  m_AnchoredPosition: {x: 0, y: -444.34418}
+  m_SizeDelta: {x: 1920, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &183133949
 MonoBehaviour:
@@ -420,7 +421,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 540
+  orthographic size: 446.39838
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -444,7 +445,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 960, y: 540, z: -10}
+  m_LocalPosition: {x: 975, y: 629, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -462,6 +463,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b07c04675d8b70546af6f4e12cd41572, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cam: {fileID: 519420031}
   board: {fileID: 1100988997}
   computeShader: {fileID: 7200000, guid: b4ee6783b320a104a9b47f5e6b1c1642, type: 3}
   renderTexture: {fileID: 0}
@@ -697,16 +699,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 320
   height: 180
-  lifeTime: 5
-  deathTimeMult: 3
+  lifeTime: 2
+  deathTimeMult: 1
+  eraserFraction: 0.05
   boardZ: 10
-  frequency: 100
+  frequency: 200
   tile_prefab: {fileID: 4821463793604334001, guid: 3091c0edefe1f364fbd64407d10c8c57, type: 3}
   plant_prefab: {fileID: 5095300956846355204, guid: b789cbe60bc774a4caaacd9f2e9a4405, type: 3}
   eyeComputer: {fileID: 519420033}
   interfaze: {fileID: 1719417690}
   controls: {fileID: 183133950}
   tiles: []
+  eraserSize: 25
 --- !u!4 &1100988998
 Transform:
   m_ObjectHideFlags: 0
@@ -840,15 +844,15 @@ PrefabInstance:
       objectReference: {fileID: 183133948}
     - target: {fileID: 1239580047592305564, guid: 041df1613a3a76446b278852afb08cd3, type: 3}
       propertyPath: color.b
-      value: 0.8705883
+      value: 0.7058824
       objectReference: {fileID: 0}
     - target: {fileID: 1239580047592305564, guid: 041df1613a3a76446b278852afb08cd3, type: 3}
       propertyPath: color.g
-      value: 0.49411768
+      value: 0.050980397
       objectReference: {fileID: 0}
     - target: {fileID: 1239580047592305564, guid: 041df1613a3a76446b278852afb08cd3, type: 3}
       propertyPath: color.r
-      value: 0.59607846
+      value: 0.19215688
       objectReference: {fileID: 0}
     - target: {fileID: 1239580047592305565, guid: 041df1613a3a76446b278852afb08cd3, type: 3}
       propertyPath: m_Pivot.x
@@ -1006,7 +1010,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.16470589}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1152,18 +1156,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1686253578}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1574599338}
-  m_Father: {fileID: 1719417689}
-  m_RootOrder: 3
+  m_Father: {fileID: 183133948}
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 867, y: -445}
-  m_SizeDelta: {x: 120, y: 120}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1686253580
 MonoBehaviour:
@@ -1212,10 +1216,10 @@ MonoBehaviour:
       - m_Target: {fileID: 1100988997}
         m_TargetAssemblyTypeName: Board, Assembly-CSharp
         m_MethodName: startGame
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 1686253580}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1354,7 +1358,6 @@ RectTransform:
   - {fileID: 1558703997}
   - {fileID: 183133948}
   - {fileID: 1029272122}
-  - {fileID: 1686253579}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1375,10 +1378,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 095c357f894e85044960582b263d2a92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  board: {fileID: 0}
+  board: {fileID: 1100988997}
   indicatorSpawnpoint: {fileID: 1953631142}
   totalImage: {fileID: 1029272123}
   totalText: {fileID: 1105343742}
+  controlBar: {fileID: 183133947}
+  panel: {fileID: 1558703996}
+  startStop: {fileID: 1686253580}
 --- !u!224 &1854150274 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1239580047592305565, guid: 041df1613a3a76446b278852afb08cd3, type: 3}
@@ -1611,15 +1617,15 @@ PrefabInstance:
       objectReference: {fileID: 183133948}
     - target: {fileID: 1239580047592305564, guid: 041df1613a3a76446b278852afb08cd3, type: 3}
       propertyPath: color.b
-      value: 0.7058824
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1239580047592305564, guid: 041df1613a3a76446b278852afb08cd3, type: 3}
       propertyPath: color.g
-      value: 0.050980397
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1239580047592305564, guid: 041df1613a3a76446b278852afb08cd3, type: 3}
       propertyPath: color.r
-      value: 0.19215688
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1239580047592305565, guid: 041df1613a3a76446b278852afb08cd3, type: 3}
       propertyPath: m_Pivot.x

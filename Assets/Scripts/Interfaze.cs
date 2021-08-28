@@ -8,6 +8,10 @@ public class Interfaze : MonoBehaviour {
   [SerializeField] Transform indicatorSpawnpoint;
   [SerializeField] Image totalImage;
   [SerializeField] Text totalText;
+  [SerializeField] GameObject controlBar;
+  [SerializeField] GameObject panel;
+  [SerializeField] public Button startStop;
+  private bool showing = true;
 
   public Dictionary<Color, int> colorCounts = new Dictionary<Color, int>();
 
@@ -22,10 +26,27 @@ public class Interfaze : MonoBehaviour {
 
   private void Update() {
     // printCounts();
+    if (Input.GetKeyDown(KeyCode.Escape)) hide();
+    if (Input.GetKeyDown(KeyCode.Space)) board.startGame();
   }
   public void printCounts() {
     foreach (KeyValuePair<Color, int> kvp in colorCounts) {
       Debug.Log(String.Format("{0} : {1}", kvp.Key, kvp.Value));
+    }
+  }
+
+  private void hide() {
+    showing = !showing;
+    controlBar.SetActive(showing);
+    panel.SetActive(showing);
+  }
+
+  public void toggleStartStopButton(bool started) {
+    Text buttonText = startStop.GetComponentInChildren<Text>();
+    if (started) {
+      buttonText.text = "stop";
+    } else {
+      buttonText.text = "start";
     }
   }
 

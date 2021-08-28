@@ -1,4 +1,4 @@
-using System;
+// using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +6,7 @@ using UnityEngine;
 public struct Point {
   public Color color;
   public int age;
+  public int alive;
 }
 
 public struct Spread {
@@ -14,6 +15,7 @@ public struct Spread {
 }
 
 public class EyeComputer : MonoBehaviour {
+  [SerializeField] Camera cam;
   [SerializeField] Board board;
   [SerializeField] ComputeShader computeShader;
   [SerializeField] ComputeBuffer pointsBuffer;
@@ -23,22 +25,26 @@ public class EyeComputer : MonoBehaviour {
   private Point[] points;
   private Spread[] spreads;
   private int spreadID = 0;
+  private int colourID = 0;
 
   private void Start() {
     // NW (-1, 1) :: 128
     // N (-1, -1) :: 64
+    Rect camRect = cam.rect;
+    camRect.yMax = 1.2f;
+    cam.rect = camRect;
     positionalMap = new Dictionary<Vector2, uint>() {
-      {new Vector2(-1, 1), 128}, // NW
+      {new Vector2(1, 1), 128}, // NW
       {new Vector2(0, 1), 64},   // N
-      {new Vector2(1, 1), 32},   // NE
+      {new Vector2(-1, 1), 32},   // NE
 
-      {new Vector2(-1, 0), 16},  // W
+      {new Vector2(1, 0), 16},  // W
       {new Vector2(0, 0), 0},  // 0
-      {new Vector2(1, 0), 8},   // E
+      {new Vector2(-1, 0), 8},   // E
 
-      {new Vector2(-1, -1), 4},   // SW
+      {new Vector2(1, -1), 4},   // SW
       {new Vector2(0, -1), 2},   // S
-      {new Vector2(1, -1), 1},   // SE
+      {new Vector2(-1, -1), 1},   // SE
     };
     points = new Point[board.width * board.height];
     spreads = new Spread[Controls.patterns.Count];
@@ -47,6 +53,9 @@ public class EyeComputer : MonoBehaviour {
     makeRenderTexture();
     preparation();
     // makeComputer();
+    // for (int _ = 0; _ < 5000; _++) {
+    //   randomAddition();
+    // }
   }
 
   public void preparation() {
@@ -54,7 +63,7 @@ public class EyeComputer : MonoBehaviour {
     int intSize = sizeof(int);
     int uintSize = sizeof(uint);
 
-    int pointsize = (colorSize + intSize);
+    int pointsize = (colorSize + intSize + intSize);
     int spreadsize = (colorSize + uintSize);
 
     pointsBuffer = new ComputeBuffer(points.Length, pointsize);
@@ -80,7 +89,7 @@ public class EyeComputer : MonoBehaviour {
   }
 
   public void doCompute() {
-    computeShader.Dispatch(0, points.Length / 100, 1, 1);
+    computeShader.Dispatch(0, points.Length / 420, 1, 1);
     pointsBuffer.GetData(points);
   }
 
@@ -90,6 +99,7 @@ public class EyeComputer : MonoBehaviour {
         Point p = new Point();
         p.color = new Color(0, 0, 0, 1);
         p.age = 0;
+        p.alive = 1;
         points[x + y * board.width] = p;
       }
     }
@@ -127,7 +137,20 @@ public class EyeComputer : MonoBehaviour {
   }
 
   private void Update() {
-    if (Input.GetButtonDown("Fire1")) {
+  }
+
+  private void FixedUpdate() {
+    // doAdditions();
+  }
+
+  public void doAdditions() {
+    manualAddition();
+    for (int _ = 0; _ < board.randomPerTick; _++) randomAddition();
+    pointsBuffer.SetData(points);
+  }
+
+  private void manualAddition() {
+    if (Input.GetButton("Fire1")) {
       Vector2 mousepos = Input.mousePosition;
       int x = (int)(mousepos.x / Screen.width * board.width);
       int y = (int)(mousepos.y / Screen.height * board.height);
@@ -135,11 +158,45 @@ public class EyeComputer : MonoBehaviour {
       // Debug.Log(String.Format("x, y {0}, {1}", x, y));
       // Debug.Log(String.Format("scree {0}, {1}", Screen.width, Screen.height));
       if (Pattern.selected != null) {
-        points[x + y * board.width].color = Pattern.selected.color;
-        points[x + y * board.width].age = 0;
+        // manualStamp(x, y);
+        if (Pattern.selected.color == Color.black) manualStamp(x, y, true);
+        else manualStamp(x, y);
         pointsBuffer.SetData(points);
+
+        // pointsBuffer.SetData(points);
+        // doCompute();
         // doCompute();
       }
     }
+  }
+
+  private void randomAddition() {
+    Debug.Log("Adding random thing");
+    int rx = Random.Range(0, board.width);
+    int ry = Random.Range(0, board.height);
+    colourID = (colourID + 1) % Pattern.pallete.Count;
+    int rid = Random.Range(0, Pattern.pallete.Count);
+    Debug.Log(Pattern.pallete.Count);
+    Color rc = Pattern.pallete[colourID];
+    if (rc != Color.black) updatePoint(rx, ry, rc);
+    // pointsBuffer.SetData(points);
+  }
+
+  private void manualStamp(int x, int y, bool erase = false) {
+    for (int dx = -board.eraserSize; dx < board.eraserSize; dx++) {
+      for (int dy = -board.eraserSize; dy < board.eraserSize; dy++) {
+        updatePoint(x + dx, y + dy, Pattern.selected.color, erase);
+      }
+    }
+  }
+
+  private void updatePoint(int x, int y, Color color, bool erase = false) {
+    if (x < 0 || x >= board.width || y < 0 || y >= board.height) return;
+    points[x + y * board.width].color = color;
+
+    points[x + y * board.width].age = -2;
+
+    if (erase) points[x + y * board.width].alive = 0;
+    else points[x + y * board.width].alive = 1;
   }
 }

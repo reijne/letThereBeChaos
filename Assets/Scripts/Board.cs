@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Threading;
 
 public class Board : MonoBehaviour {
   [SerializeField] public int width;
   [SerializeField] public int height;
   [SerializeField] public int lifeTime;
   [SerializeField] public int deathTimeMult;
+  [SerializeField] public int randomPerTick;
+  [SerializeField] float eraserFraction;
   [SerializeField] int boardZ;
   [SerializeField] float frequency;
   [SerializeField] GameObject tile_prefab;
@@ -19,13 +20,12 @@ public class Board : MonoBehaviour {
   [SerializeField] Controls controls;
   List<(Vector2, int)> plantInitPositions;
   public List<Tile> tiles = new List<Tile>();
-  Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
-  List<Vector2> plantPositions = new List<Vector2>();
-  float nextTick;
-  bool started = false;
-  bool done = true;
-  Thread ticker_thread;
-  Mutex mutex;
+  public int eraserSize;
+  private Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
+  private List<Vector2> plantPositions = new List<Vector2>();
+  private float nextTick;
+  private bool started = false;
+  private bool done = true;
 
   void Start() {
     plantInitPositions = new List<(Vector2, int)>();
@@ -38,15 +38,17 @@ public class Board : MonoBehaviour {
     nextTick = Time.time + 1 / frequency;
     Tile.SIZE = 1;
     Pattern.SIZE = 3;
+    eraserSize = (int)(Mathf.Min(width, height) / (1 / eraserFraction));
     // spawnTiles();
     // spawnPlants();
     // StartCoroutine("ticker");
   }
 
-  public void startGame(Button button) {
+  public void startGame() {
     started = !started;
-    if (started) button.GetComponentInChildren<Text>().text = "STOP";
-    else button.GetComponentInChildren<Text>().text = "START";
+    if (started) Cursor.lockState = CursorLockMode.Confined;
+    else Cursor.lockState = CursorLockMode.None;
+    interfaze.toggleStartStopButton(started);
   }
 
   void spawnTiles() {
@@ -100,6 +102,7 @@ public class Board : MonoBehaviour {
       // done = false;
       // tick();
       eyeComputer.doCompute();
+      eyeComputer.doAdditions();
       nextTick = Time.time + 1 / frequency;
     }
   }

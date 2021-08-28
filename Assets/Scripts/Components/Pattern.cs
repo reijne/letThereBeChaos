@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class Pattern : MonoBehaviour {
   public static int SIZE = 3;
-  public static int tileCount = 2;
+  public static int tileCount = 9;
   public static List<Vector2> relPositions = new List<Vector2>();
   public static Pattern selected;
   public static List<Color> pallete = new List<Color>();
@@ -15,10 +15,15 @@ public class Pattern : MonoBehaviour {
   public List<Vector2> pattern = new List<Vector2>();
   private void Awake() {
     if (relPositions.Count == 0) makeRelativePositions();
-    if (!pallete.Contains(color)) pallete.Add(color);
+    if (!pallete.Contains(color)) {
+      pallete.Add(color);
+      Debug.Log("Adding to pallete");
+    }
+    Debug.Log(color);
     patternTile.color = color;
     createPattern();
     Controls.patterns[color] = pattern;
+    if (color == Color.black) select();
   }
 
   private void makeRelativePositions() {
@@ -32,7 +37,9 @@ public class Pattern : MonoBehaviour {
 
   private void createPattern() {
     List<Vector2> localRels = new List<Vector2>(relPositions);
-    for (int _ = 0; _ < tileCount; _++) {
+    int localTileCount = tileCount;
+    if (color == Color.black) localTileCount = 9;
+    for (int _ = 0; _ < localTileCount; _++) {
       int id = Random.Range(0, localRels.Count);
       spawnTile(localRels[id]);
       pattern.Add(localRels[id]);

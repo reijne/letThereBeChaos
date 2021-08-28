@@ -9,11 +9,11 @@ public class CenterCamera : MonoBehaviour {
   [SerializeField] float movespeed;
   Bounds tileBounds = new Bounds();
   private void Start() {
-    cam.orthographicSize = Mathf.Max(0.5f * board.width, 0.5f * board.height);
+    // cam.orthographicSize = Mathf.Max(0.5f * board.width, 0.5f * board.height);
   }
   private void Update() {
-    updateBounds();
-    movement();
+    // updateBounds();
+    // movement();
   }
 
   void movement() {
