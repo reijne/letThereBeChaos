@@ -171,15 +171,12 @@ public class EyeComputer : MonoBehaviour {
   }
 
   private void randomAddition() {
-    Debug.Log("Adding random thing");
     int rx = Random.Range(0, board.width);
     int ry = Random.Range(0, board.height);
     colourID = (colourID + 1) % Pattern.pallete.Count;
     int rid = Random.Range(0, Pattern.pallete.Count);
-    Debug.Log(Pattern.pallete.Count);
     Color rc = Pattern.pallete[colourID];
     if (rc != Color.black) updatePoint(rx, ry, rc);
-    // pointsBuffer.SetData(points);
   }
 
   private void manualStamp(int x, int y, bool erase = false) {
@@ -192,8 +189,8 @@ public class EyeComputer : MonoBehaviour {
 
   private void updatePoint(int x, int y, Color color, bool erase = false) {
     if (x < 0 || x >= board.width || y < 0 || y >= board.height) return;
-    points[x + y * board.width].color = color;
 
+    points[x + y * board.width].color = color;
     points[x + y * board.width].age = -2;
 
     if (erase) points[x + y * board.width].alive = 0;
