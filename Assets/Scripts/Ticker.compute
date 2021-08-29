@@ -1,5 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
+// #pragma use_dxc
 
 struct Point {
   float4 color;
@@ -11,6 +12,8 @@ struct Spread {
   float4 color;
   uint pattern;
 };
+
+// uint WavePrefixSum(uint value);
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -26,11 +29,16 @@ RWTexture2D<float4> board;
 
 float4 black = float4(0,0,0,1);
 
+/// Summing over all
+// uint numToSum = 1;
+// groupshared int together = 0;
+
 [numthreads(420,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
   // lifeTime *= 2;
   Point p = points[id.x];
+  // together++;
   // if (!all(p.color == black)) p.age++;
   // p.age += 2;
   // p.color = float4(xpos, 0, 0, 1);
@@ -130,6 +138,10 @@ void CSMain (uint3 id : SV_DispatchThreadID)
   }
 
   p.age++;
+
+  // int activeSum = WaveActiveSum( 1 );
+  // p.age = together;
+  // if (id.x == (width*height - 1)) p.age = activeSum;
   points[id.x] = p;
 
   ////// TEXTURE LOGIC

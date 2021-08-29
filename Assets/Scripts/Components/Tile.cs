@@ -17,6 +17,6 @@ public class Tile : MonoBehaviour {
   }
 
   private void OnMouseDown() {
-    if (Pattern.selected != null && pos != null) board.spawnPlant(pos, Pattern.selected.color);
+    // if (Pattern.selected != null && pos != null) board.spawnPlant(pos, Pattern.selected.color);
   }
 }

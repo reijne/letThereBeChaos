@@ -33,13 +33,13 @@ public class Plant : Tile {
   }
 
   private void remove() {
-    board.removePlant(this);
+    // board.removePlant(this);
     Destroy(this.gameObject);
     Destroy(this);
   }
 
   private void OnMouseDown() {
     remove();
-    if (Pattern.selected != null && pos != null) board.spawnPlant(pos, Pattern.selected.color);
+    // if (Pattern.selected != null && pos != null) board.spawnPlant(pos, Pattern.selected.color);
   }
 }

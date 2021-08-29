@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Controls : MonoBehaviour {
   public static Dictionary<Color, List<Vector2>> patterns = new Dictionary<Color, List<Vector2>>();
+  [SerializeField] Pattern pattern_prefab;
   [SerializeField] Board board;
   [SerializeField] List<Pattern> patternObjects = new List<Pattern>();
   public static bool spawning = false;
@@ -16,17 +17,17 @@ public class Controls : MonoBehaviour {
     KeyCode.Alpha4,
     KeyCode.Alpha5
   };
-  private void Update() {
-    handleInput();
-  }
+  // private void Update() {
+  //   handleInput();
+  // }
 
-  private void handleInput() {
-    for (int i = 0; i < numbers.Count; i++) {
-      if (Input.GetKeyDown(numbers[i])) {
-        patternObjects[i].select();
-      }
-    }
-  }
+  // private void handleInput() {
+  //   for (int i = 0; i < numbers.Count; i++) {
+  //     if (Input.GetKeyDown(numbers[i])) {
+  //       patternObjects[i].select();
+  //     }
+  //   }
+  // }
 
   // private void Update() {
   //   if (spawning && Pattern.selected != null) {

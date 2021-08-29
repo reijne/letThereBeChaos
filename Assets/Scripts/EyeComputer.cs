@@ -1,4 +1,4 @@
-// using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,11 +28,10 @@ public class EyeComputer : MonoBehaviour {
   private int colourID = 0;
 
   private void Start() {
-    // NW (-1, 1) :: 128
-    // N (-1, -1) :: 64
-    Rect camRect = cam.rect;
-    camRect.yMax = 1.2f;
-    cam.rect = camRect;
+
+  }
+
+  public void initialisation() {
     positionalMap = new Dictionary<Vector2, uint>() {
       {new Vector2(1, 1), 128}, // NW
       {new Vector2(0, 1), 64},   // N
@@ -47,15 +46,10 @@ public class EyeComputer : MonoBehaviour {
       {new Vector2(-1, -1), 1},   // SE
     };
     points = new Point[board.width * board.height];
-    spreads = new Spread[Controls.patterns.Count];
+    spreads = new Spread[Pattern.pallete.Count];
     addPoints();
     addSpreads();
     makeRenderTexture();
-    preparation();
-    // makeComputer();
-    // for (int _ = 0; _ < 5000; _++) {
-    //   randomAddition();
-    // }
   }
 
   public void preparation() {
@@ -78,19 +72,25 @@ public class EyeComputer : MonoBehaviour {
     computeShader.SetInt("width", board.width);
     computeShader.SetInt("lifeTime", board.lifeTime);
     computeShader.SetInt("deathTimeMult", board.deathTimeMult);
-    computeShader.SetInt("patternCount", Controls.patterns.Count);
+    computeShader.SetInt("patternCount", spreadID);
     computeShader.SetTexture(0, "board", renderTexture);
-    Debug.Log(points[1].color);
+    // Debug.Log(points[1].color);
+  }
+
+  public void cleanup() {
+    if (pointsBuffer != null) pointsBuffer.Dispose();
+    if (spreadsBuffer != null) spreadsBuffer.Dispose();
   }
 
   private void OnApplicationQuit() {
-    pointsBuffer.Dispose();
-    spreadsBuffer.Dispose();
+    cleanup();
   }
 
   public void doCompute() {
     computeShader.Dispatch(0, points.Length / 420, 1, 1);
     pointsBuffer.GetData(points);
+    // Debug.Log(points[points.Length - 1].age);
+    // Debug.Log(points[2].age);
   }
 
   private void addPoints() {
@@ -108,17 +108,30 @@ public class EyeComputer : MonoBehaviour {
   }
 
   private void addSpreads() {
-    foreach (KeyValuePair<Color, List<Vector2>> kvp in Controls.patterns) {
+    // foreach (Vector2 pos in Pattern.pattern) {
+    spreadID = 0;
+    foreach (Color c in Pattern.pallete) {
       Spread s = new Spread();
-      s.color = kvp.Key;
-
+      s.color = c;
       s.pattern = 0;
-      for (int i = 0; i < kvp.Value.Count; i++) {
-        s.pattern += positionalMap[kvp.Value[i]];
+      for (int i = 0; i < Pattern.pattern.Count; i++) {
+        s.pattern += positionalMap[Pattern.pattern[i]];
       }
       spreads[spreadID] = s;
       spreadID++;
     }
+    // }
+    // foreach (KeyValuePair<Color, List<Vector2>> kvp in Controls.patterns) {
+    //   Spread s = new Spread();
+    //   s.color = kvp.Key;
+
+    //   s.pattern = 0;
+    //   for (int i = 0; i < kvp.Value.Count; i++) {
+    //     s.pattern += positionalMap[kvp.Value[i]];
+    //   }
+    //   spreads[spreadID] = s;
+    //   spreadID++;
+    // }
   }
 
   private void makeRenderTexture() {
@@ -136,17 +149,30 @@ public class EyeComputer : MonoBehaviour {
     Graphics.Blit(renderTexture, dest);
   }
 
-  private void Update() {
-  }
-
-  private void FixedUpdate() {
-    // doAdditions();
-  }
-
   public void doAdditions() {
     manualAddition();
     for (int _ = 0; _ < board.randomPerTick; _++) randomAddition();
     pointsBuffer.SetData(points);
+  }
+
+  public (Dictionary<Color, int>, int) countColours() {
+    Dictionary<Color, int> colourCounts = new Dictionary<Color, int>();
+    foreach (Color c in Pattern.pallete) {
+      Debug.Log(String.Format("Adding colour :: {0}", c));
+      colourCounts[c] = 0;
+    }
+    int total = 0;
+    if (points != null) {
+      foreach (Point p in points) {
+        // Debug.Log(String.Format("counting colour :: {0}", p.color));
+        if (colourCounts.ContainsKey(p.color)) {
+          colourCounts[p.color]++;
+          total++;
+        }// else colourCounts[p.color] = 1;
+      }
+    }
+
+    return (colourCounts, total);
   }
 
   private void manualAddition() {
@@ -159,9 +185,9 @@ public class EyeComputer : MonoBehaviour {
       // Debug.Log(String.Format("scree {0}, {1}", Screen.width, Screen.height));
       if (Pattern.selected != null) {
         // manualStamp(x, y);
-        if (Pattern.selected.color == Color.black) manualStamp(x, y, true);
+        if (board.eraserMode) manualStamp(x, y, true);
         else manualStamp(x, y);
-        pointsBuffer.SetData(points);
+        // pointsBuffer.SetData(points);
 
         // pointsBuffer.SetData(points);
         // doCompute();
@@ -171,18 +197,25 @@ public class EyeComputer : MonoBehaviour {
   }
 
   private void randomAddition() {
-    int rx = Random.Range(0, board.width);
-    int ry = Random.Range(0, board.height);
+    int rx = UnityEngine.Random.Range(0, board.width);
+    int ry = UnityEngine.Random.Range(0, board.height);
     colourID = (colourID + 1) % Pattern.pallete.Count;
-    int rid = Random.Range(0, Pattern.pallete.Count);
+    // int rid = UnityEngine.Random.Range(0, Pattern.pallete.Count);
     Color rc = Pattern.pallete[colourID];
+
+    if (board.levels[board.lid].hardcore) { // if hardcore dont spawn the desired colour
+      colourID = (colourID + 1) % Pattern.pallete.Count;
+      rc = Pattern.pallete[colourID];
+    }
+
     if (rc != Color.black) updatePoint(rx, ry, rc);
   }
 
   private void manualStamp(int x, int y, bool erase = false) {
     for (int dx = -board.eraserSize; dx < board.eraserSize; dx++) {
       for (int dy = -board.eraserSize; dy < board.eraserSize; dy++) {
-        updatePoint(x + dx, y + dy, Pattern.selected.color, erase);
+        Color c = erase ? Color.black : Pattern.selected;
+        updatePoint(x + dx, y + dy, c, erase);
       }
     }
   }

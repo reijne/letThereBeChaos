@@ -11,143 +11,124 @@ public class Board : MonoBehaviour {
   [SerializeField] public int deathTimeMult;
   [SerializeField] public int randomPerTick;
   [SerializeField] float eraserFraction;
-  [SerializeField] int boardZ;
   [SerializeField] float frequency;
-  [SerializeField] GameObject tile_prefab;
-  [SerializeField] GameObject plant_prefab;
+  [SerializeField] public AudioSource audioSource;
   [SerializeField] EyeComputer eyeComputer;
   [SerializeField] Interfaze interfaze;
-  [SerializeField] Controls controls;
-  List<(Vector2, int)> plantInitPositions;
-  public List<Tile> tiles = new List<Tile>();
+  [SerializeField] public List<Level> levels;
+  [NonSerialized] public int lid;
+  public float startingTime;
+  public float endTime;
+  public bool eraserMode;
   public int eraserSize;
-  private Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
-  private List<Vector2> plantPositions = new List<Vector2>();
   private float nextTick;
+  private bool ticking = false;
   private bool started = false;
-  private bool done = true;
 
-  void Start() {
-    plantInitPositions = new List<(Vector2, int)>();
-    //   (new Vector2(6,7), 1),
-    //   (new Vector2(1,1), 2),
-    //   (new Vector2(34,22), 3),
-    //   (new Vector2(9,6), 4),
-    //   (new Vector2(29,49), 0),
-    // };
+  void Awake() {
     nextTick = Time.time + 1 / frequency;
-    Tile.SIZE = 1;
-    Pattern.SIZE = 3;
-    eraserSize = (int)(Mathf.Min(width, height) / (1 / eraserFraction));
+    loadLevel(0);
+    // Tile.SIZE = 1;
+    // Pattern.SIZE = 3;
     // spawnTiles();
     // spawnPlants();
     // StartCoroutine("ticker");
+
+  }
+
+  private void Update() {
+    if (Input.GetKeyDown(KeyCode.Space)) toggleGame();
+  }
+
+  public void toggleGame() {
+    if (!started) {
+      startGame();
+      return;
+    }
+    ticking = !ticking;
+
   }
 
   public void startGame() {
-    started = !started;
-    if (started) Cursor.lockState = CursorLockMode.Confined;
-    else Cursor.lockState = CursorLockMode.None;
-    interfaze.toggleStartStopButton(started);
+    ticking = true;
+    started = true;
+    Cursor.lockState = CursorLockMode.Confined;
+    eyeComputer.initialisation();
+    eyeComputer.preparation();
+
+    startingTime = Time.time;
+    if (audioSource.clip != null) endTime = startingTime + audioSource.clip.length;
+    else endTime = startingTime + levels[lid].time;
+    audioSource.Play();
+
+    interfaze.startInterface();
+    interfaze.hideControl();
+    StartCoroutine("levelStopper");
   }
 
-  void spawnTiles() {
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        spawnTile(x, y);
-      }
-    }
+  public void stopGame() {
+    ticking = false;
+    started = false;
+    Cursor.lockState = CursorLockMode.None;
+    audioSource.Stop();
+    interfaze.updateTimer();
+    checkResult();
   }
 
-  void spawnPlants() {
-    foreach ((Vector2, int) tuplant in plantInitPositions) {
-      spawnPlant(tuplant.Item1, Pattern.pallete[tuplant.Item2]);
-    }
-  }
+  private void checkResult() {
+    int desiredPercentage = levels[lid].desiredPercentage;
+    // First counting then we can cleanup
+    (Dictionary<Color, int>, int) colourCounts = eyeComputer.countColours();
+    eyeComputer.cleanup();
 
-  public void spawnPlant(Vector2 plantPos, Color color) {
-    if (outOfBounds(plantPos)) return;
-    Vector3 spawnPoint = new Vector3(plantPos.x * Plant.SIZE, plantPos.y * Plant.SIZE, 0);
-    GameObject plantObject = Instantiate(plant_prefab, spawnPoint, Quaternion.identity);
-    Plant plant = plantObject.GetComponent<Plant>();
-    plants[plantPos] = plant;
-    plant.board = this;
-    plant.pos = plantPos;
-    plant.setColor(color);
-    plantPositions.Add(plantPos);
-    interfaze.addColorCount(color);
-  }
+    int reachedPercentage = (int)((float)colourCounts.Item1[Pattern.selected] / colourCounts.Item2 * 100);
+    // Debug.Log(String.Format("col {0}, total {1}", colourCounts.Item1[Pattern.selected], colourCounts.Item2));
+    // Debug.Log(String.Format("Reached {0}, desired {1}", reachedPercentage, levels[lid].desiredPercentage));
 
-  public void removePlant(Plant plant) {
-    plants.Remove(plant.pos);
-    // System.GC.Collect();
-  }
+    if (reachedPercentage >= levels[lid].desiredPercentage)
+      interfaze.showEnd(colourCounts.Item1[Pattern.selected], reachedPercentage, true);
+    else
+      interfaze.showEnd(colourCounts.Item1[Pattern.selected], reachedPercentage, false);
 
-  bool outOfBounds(Vector2 pos) {
-    return pos.x < 0 || pos.x >= width || pos.y < 0 || pos.y >= height;
-  }
-
-  void spawnTile(int x, int y) {
-    Vector3 spawnPoint = new Vector3(x * Tile.SIZE, y * Tile.SIZE, boardZ);
-    GameObject tileObject = Instantiate(tile_prefab, spawnPoint, Quaternion.identity);
-    tileObject.transform.SetParent(transform);
-    Tile tile = tileObject.GetComponent<Tile>();
-    tile.board = this;
-    tile.pos = new Vector2(x, y);
-    tiles.Add(tile);
   }
 
   void FixedUpdate() {
-    if (Time.time >= nextTick && started && done) {
-      // done = false;
-      // tick();
+    if (Time.time >= nextTick && ticking) {
       eyeComputer.doCompute();
       eyeComputer.doAdditions();
+      interfaze.updateTimer();
       nextTick = Time.time + 1 / frequency;
     }
   }
 
-  IEnumerator ticker() {
-    while (true) {
-      if (!done) {
-        tick();
-        done = true;
-      }
-      yield return null;
-    }
+  public void loadLevel(int levelID) {
+    lid = levelID;
+    Level l = levels[lid];
+    audioSource.clip = l.theme;
+    Debug.Log(l.theme.length);
+    frequency = l.frequency;
+    eraserMode = l.erasorMode;
+    randomPerTick = l.randomPerTick;
+    eraserSize = (int)(Mathf.Min(width, height) / (1 / l.eraserFraction));
+    Pattern.tileCount = l.patternTileCount;
+    Pattern.createPattern();
+    Pattern.selected = l.desiredColor;
+    Pattern.cleanPallete();
+    Pattern.addColor(l.desiredColor);
+    foreach (Color c in l.otherColours) Pattern.addColor(c);
+    interfaze.initInterface();
+    interfaze.setMidText(l.startingMessage);
   }
 
-  void tick() {
-    List<Vector2> localPositions = new List<Vector2>();
-    foreach (Vector2 plantPos in plants.Keys) {
-      localPositions.Add(plantPos);
-    }
-
-    foreach (Vector2 plantPos in localPositions) {
-      checkGrowth(plantPos, plants[plantPos]);
-      plants[plantPos].tick();
-    }
+  IEnumerator levelStopper() {
+    // float waittime = levels[lid].time;
+    // if (audioSource.isPlaying) waittime = audioSource.clip.length;
+    while (Time.time < endTime) yield return new WaitForSeconds(0.5f);
+    stopGame();
   }
 
-  void checkGrowth(Vector2 pos, Plant plant) {
-    if (plant.color == Pallette.invis) return;
-    foreach (Vector2 relPos in Controls.patterns[plant.color]) {
-      grow(pos + relPos, plant);
-    }
-    // if (!controls.patterns.ContainsKey(plant.color)) return;
-    // Dictionary<(int, int), bool> pattern = controls.patterns[plant.color];
-    // foreach (KeyValuePair<(int, int), bool> select in pattern) {
-    //   Vector2 offset = new Vector2(select.Key.Item1 - (Pattern.SIZE - 1) / 2, select.Key.Item2 - (Pattern.SIZE - 1) / 2);
-    //   if (select.Value) grow(pos + offset, plant);
-    // }
-  }
 
-  void grow(Vector2 pos, Plant plant) {
-    if (plants.ContainsKey(pos) || !plant.isAlive) return;
-    spawnPlant(pos, plant.color);
-  }
-
-  void rePlant(Vector2 pos, Color color) {
-    plants[pos].revive(color);
-  }
+  // Timer coroutine
+  // Colour counter
+  // 
 }
